@@ -204,5 +204,6 @@ return [
 		],
 		
 		'taglib_begin' => '<',
-		'taglib_end' => '>' 
+		'taglib_end' => '>',
+		'base_url'=>''
 ];

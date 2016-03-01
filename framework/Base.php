@@ -60,6 +60,6 @@ define('IS_DELETE', REQUEST_METHOD == 'DELETE' ? true : false);
 
 
 //当前行为
-// define('CONTROLLER_NAME', \Yaf\Dispatcher::getInstance()->getRequest()->controller);
-// define('MODULE_NAME',  \Yaf\Dispatcher::getInstance()->getRequest()->module);
-// define('ACTION_NAME',  \Yaf\Dispatcher::getInstance()->getRequest()->action);
+// defined('CONTROLLER_NAME') or define('CONTROLLER_NAME', \Yaf\Dispatcher::getInstance()->getRequest()->controller);
+// defined('MODULE_NAME') or define('MODULE_NAME',  \Yaf\Dispatcher::getInstance()->getRequest()->module);
+// defined('ACTION_NAME') or define('ACTION_NAME',  \Yaf\Dispatcher::getInstance()->getRequest()->action);
