@@ -12,4 +12,12 @@ function application(){
 function dispatcher(){
 	return \Yaf\Dispatcher::getInstance();
 }
+
+/**
+ * 配置
+ * @return mixed
+ */
+function config(){
+	return \Yaf\Registry::get('config');
+}
 ?>

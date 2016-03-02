@@ -48,22 +48,16 @@ class Thinkview implements \Yaf\View_Interface {
 		
 		$this->_smarty->assign ( $spec, $value );
 	}
-
 	public function setScriptPath($path) {
-		if (is_readable($path))
-		{
-			$this->_smarty->theme($path);
-		}
-		else
-		{
-			throw new Exception('Invalid path provided');
+		if (is_readable ( $path )) {
+			$this->_smarty->theme ( $path );
+		} else {
+			throw new Exception ( 'Invalid path provided' );
 		}
 	}
-
 	public function getScriptPath() {
-		return $this->_smarty->getThemePath();
+		return $this->_smarty->getThemePath ();
 	}
-	
 	
 	/**
 	 * Processes a template and returns the output.
@@ -72,28 +66,39 @@ class Thinkview implements \Yaf\View_Interface {
 	 *        	The template to process.
 	 * @return string The output.
 	 */
-	public function render($name, $tpl_vars = array()) {
-		if (!empty($tpl_vars))
-		{
-			$this->assign($tpl_vars);
+	public function render($name = '', $tpl_vars = array()) {
+		if (! empty ( $tpl_vars )) {
+			$this->assign ( $tpl_vars );
 		}
- 		$module=strtolower(dispatcher()->getRequest()->module);
- 		if($module==C('DEFAULT_MODULE')){
-			$themepath=APP_PATH.DS.'views'.DS;
- 		}else{
- 			$themepath=APP_PATH.DS.$module.DS.'views'.DS;
- 		}
-		return $this->_smarty->fetch($themepath.$name);
+		if (strtolower ( MODULE_NAME ) == strtolower ( C ( 'DEFAULT_MODULE' ) )) {
+			$themepath = APP_PATH . DS . 'views' . DS;
+		} else {
+			$themepath = APP_PATH . DS . MODULE_NAME . DS . 'views' . DS;
+		}
+		if ($name) {
+			if (! strpos ( $name, DS )) {
+				$name = ACTION_NAME . DS . $name;
+			}
+			$name = $themepath . $name;
+		}
+		return $this->_smarty->fetch ( $name );
 	}
 	
-	public function display($name, $tpl_vars = array()) {
-		//die(var_dump($name));
-		if (!empty($tpl_vars))
-		{
-			$this->assign($tpl_vars);
+	/**
+	 * 渲染模板
+	 *
+	 * @see \Yaf\View_Interface::display()
+	 */
+	public function display($name = '', $tpl_vars = array()) {
+		if ($name) {
+			$name = str_replace ( '/', DS, $name );
+		} else {
+			$name = CONTROLLER_NAME . DS . MODULE_NAME;
 		}
-		echo $this->_smarty->fetch($name . ".tpl");
-		exit();
+		$ext = config ()['application']['view']['ext'];
+		$name = $name . '.' . $ext;
+		echo $this->render ( $name, $tpl_vars );
+		exit ();
 	}
 }
 ?>

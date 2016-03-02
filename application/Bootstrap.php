@@ -14,7 +14,7 @@ class Bootstrap extends \Yaf\Bootstrap_Abstract {
 		$config = \Yaf\Application::app ()->getConfig ();
 		\Yaf\Registry::set ( 'config', $config );
 		// 关闭模板自动渲染
-		// \Yaf\Dispatcher::getInstance()->autoRender(FALSE);
+		\Yaf\Dispatcher::getInstance()->autoRender(FALSE);
 		// 引入THINK类库
 		\Yaf\Loader::import ( FRAMEWORK_PATH . '/Base.php' );
 		\Yaf\Loader::import ( FRAMEWORK_PATH . '/Convention.php' );

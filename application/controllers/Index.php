@@ -8,7 +8,8 @@ class IndexController extends BaseController {
 	public function indexAction($name = '') {
 		// $list=M('user')->find();
 		// we($list);
-		$this->_view->assign ( 'title', 'yaf测试' );
+		$this->assign ( 'title', 'yaf测试1' );
+		$this->display();
 	}
 	
 	public function testAction(){
