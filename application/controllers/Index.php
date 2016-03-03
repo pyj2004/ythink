@@ -6,15 +6,13 @@
  */
 class IndexController extends BaseController {
 	public function indexAction($name = '') {
-		// $list=M('user')->find();
-		// we($list);
+		$list = M ( 'user' )->field ( 'id,username' )->limit ( 10 )->select ();
+		$this->assign ( 'list', $list );
 		$this->assign ( 'title', 'yaf测试1' );
-		$this->display();
+		$this->display ();
 	}
-	
-	public function testAction(){
-
-		dump(MODULE_NAME);
+	public function testAction() {
+		dump ( MODULE_NAME );
 		dump(CONTROLLER_NAME);
 		dump(ACTION_NAME);
 		exit();

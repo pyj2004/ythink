@@ -57,9 +57,3 @@ define('IS_GET', REQUEST_METHOD == 'GET' ? true : false);
 define('IS_POST', REQUEST_METHOD == 'POST' ? true : false);
 define('IS_PUT', REQUEST_METHOD == 'PUT' ? true : false);
 define('IS_DELETE', REQUEST_METHOD == 'DELETE' ? true : false);
-
-
-//当前行为
-// defined('CONTROLLER_NAME') or define('CONTROLLER_NAME', \Yaf\Dispatcher::getInstance()->getRequest()->controller);
-// defined('MODULE_NAME') or define('MODULE_NAME',  \Yaf\Dispatcher::getInstance()->getRequest()->module);
-// defined('ACTION_NAME') or define('ACTION_NAME',  \Yaf\Dispatcher::getInstance()->getRequest()->action);

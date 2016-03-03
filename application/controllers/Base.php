@@ -5,7 +5,7 @@
  *
  */
 class BaseController extends Controller {
-	public function init() {
-		parent::init();
+	public function _initialize() {
+		
 	}
 }
