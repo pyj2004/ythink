@@ -44,7 +44,10 @@ function we($str = '') {
  *
  * @param unknown $text        	
  */
-function logdebug($text) {
+function logdebug($text='') {
+	if(is_array($text)){
+		$text=json_encode($text);
+	}
 	file_put_contents ( 'log.txt', $text . "\n", FILE_APPEND );
 }
 

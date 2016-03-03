@@ -5,6 +5,16 @@
  *
  */
 class IndexController extends BaseController {
+	public function tAction($name = "Stranger") {
+		dump ( U ( 'index/t', 'name=1&nam1=2' ) );
+		dump ( dispatcher ()->getRequest ()->getParams () );
+		dump ( I () );
+		we ( $name );
+		// 2. fetch model
+		$this->assign ( "name", $name );
+		
+		return false;
+	}
 	public function indexAction($name = '') {
 		$list = M ( 'user' )->field ( 'id,username' )->limit ( 10 )->select ();
 		$this->assign ( 'list', $list );
@@ -13,8 +23,8 @@ class IndexController extends BaseController {
 	}
 	public function testAction() {
 		dump ( MODULE_NAME );
-		dump(CONTROLLER_NAME);
-		dump(ACTION_NAME);
-		exit();
+		dump ( CONTROLLER_NAME );
+		dump ( ACTION_NAME );
+		exit ();
 	}
 }
