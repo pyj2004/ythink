@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+<title>WEUI</title>
+<link href="../style/weui.min.css" type="text/css" rel="stylesheet" />
+<link href="../style/example.css" type="text/css" rel="stylesheet" />
+<script language="javascript" src="../zepto.min.js"></script>
+<script language="javascript" src="../my.js"></script> 
+</head>
+
+<body>
+  <!-- body 顶部加上如下代码 -->
+  <div class="weui-pull-to-refresh-layer">
+    <div class="pull-to-refresh-arrow"></div> <!-- 上下拉动的时候显示的箭头 -->
+    <div class="pull-to-refresh-preloader"></div> <!-- 正在刷新的菊花 -->
+    <div class="down">下拉刷新</div><!-- 下拉过程显示的文案 -->
+    <div class="up">释放刷新</div><!-- 下拉超过50px显示的文案 -->
+    <div class="refresh">正在刷新...</div><!-- 正在刷新时显示的文案 -->
+  </div>
+
+
+
+<div class='content-padded'>
+  <p>当前时间: <strong id="time"></strong></p>
+  <div class="weui_panel">
+      <div class="weui_panel_hd">小图文组合列表</div>
+      <div class="weui_panel_bd">
+        <div class="weui_media_box weui_media_small_appmsg">
+          <div class="weui_cells weui_cells_access"> <a class="weui_cell" href="javascript:;">
+            <div class="weui_cell_hd"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAuCAMAAABgZ9sFAAAAVFBMVEXx8fHMzMzr6+vn5+fv7+/t7e3d3d2+vr7W1tbHx8eysrKdnZ3p6enk5OTR0dG7u7u3t7ejo6PY2Njh4eHf39/T09PExMSvr6+goKCqqqqnp6e4uLgcLY/OAAAAnklEQVRIx+3RSRLDIAxE0QYhAbGZPNu5/z0zrXHiqiz5W72FqhqtVuuXAl3iOV7iPV/iSsAqZa9BS7YOmMXnNNX4TWGxRMn3R6SxRNgy0bzXOW8EBO8SAClsPdB3psqlvG+Lw7ONXg/pTld52BjgSSkA3PV2OOemjIDcZQWgVvONw60q7sIpR38EnHPSMDQ4MjDjLPozhAkGrVbr/z0ANjAF4AcbXmYAAAAASUVORK5CYII=" alt="" style="width:20px;margin-right:5px;display:block"></div>
+            <div class="weui_cell_bd weui_cell_primary">
+              <p>文字标题</p>
+            </div>
+            <span class="weui_cell_ft"></span> </a> <a class="weui_cell" href="javascript:;">
+            <div class="weui_cell_hd"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAuCAMAAABgZ9sFAAAAVFBMVEXx8fHMzMzr6+vn5+fv7+/t7e3d3d2+vr7W1tbHx8eysrKdnZ3p6enk5OTR0dG7u7u3t7ejo6PY2Njh4eHf39/T09PExMSvr6+goKCqqqqnp6e4uLgcLY/OAAAAnklEQVRIx+3RSRLDIAxE0QYhAbGZPNu5/z0zrXHiqiz5W72FqhqtVuuXAl3iOV7iPV/iSsAqZa9BS7YOmMXnNNX4TWGxRMn3R6SxRNgy0bzXOW8EBO8SAClsPdB3psqlvG+Lw7ONXg/pTld52BjgSSkA3PV2OOemjIDcZQWgVvONw60q7sIpR38EnHPSMDQ4MjDjLPozhAkGrVbr/z0ANjAF4AcbXmYAAAAASUVORK5CYII=" alt="" style="width:20px;margin-right:5px;display:block"></div>
+            <div class="weui_cell_bd weui_cell_primary">
+              <p>文字标题</p>
+            </div>
+            <span class="weui_cell_ft"></span> </a> </div>
+        </div>
+      </div>
+    </div>
+</div>
+  <!-- 其他内容 -->
+</body>
+</html>
