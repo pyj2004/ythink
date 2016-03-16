@@ -43,7 +43,7 @@ class Response
             'text'   => 'text/plain',
         ];
 
-        if (!headers_sent() && !headers_list() && isset($headers[$type])) {
+        if (!headers_sent() && isset($headers[$type])) {
             header('Content-Type:' . $headers[$type] . '; charset=utf-8');
         }
 
@@ -174,7 +174,7 @@ class Response
             'code' => $code,
             'msg'  => $msg,
             'data' => $data,
-            'url'  => is_null($url) ? $_SERVER["HTTP_REFERER"] : $url,
+            'url'  => is_null($url) && isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : $url,
             'wait' => $wait,
         ];
 
