@@ -1,4 +1,5 @@
 <?php
+define ( "APP_DEBUG", true );
 define ( "APPLICATION_PATH", __DIR__ );
 define ( "APP_PATH", APPLICATION_PATH. '/application' );
 define ( "FRAMEWORK_PATH", APPLICATION_PATH . '/framework' );

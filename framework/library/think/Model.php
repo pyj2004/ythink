@@ -54,8 +54,6 @@ class Model
     protected $scope = [];
     // 字段映射定义
     protected $map = [];
-    // 字段验证规则定义
-    protected $rule = [];
 
     /**
      * 架构函数
@@ -989,11 +987,23 @@ class Model
     protected function dataValidate(&$data)
     {
         if (!empty($this->options['validate'])) {
-            if (!empty($this->rule)) {
-                Validate::rule($this->rule);
+            $info = $this->options['validate'];
+            if (is_array($info)) {
+                $validate = Loader::validate(Config::get('default_validate'));
+                $validate->rule($info['rule']);
+                $validate->message($info['msg']);
+            } else {
+                $name = is_string($info) ? $info : $this->name;
+                if (strpos($name, '.')) {
+                    list($name, $scene) = explode('.', $name);
+                }
+                $validate = Loader::validate($name);
+                if (!empty($scene)) {
+                    $validate->scene($scene);
+                }
             }
-            if (!Validate::check($data, $this->options['validate'])) {
-                $this->error = Validate::getError();
+            if (!$validate->check($data)) {
+                $this->error = $validate->getError();
                 return false;
             }
             $this->options['validate'] = null;
@@ -1720,8 +1730,8 @@ class Model
     public function order($field, $order = null)
     {
         if (!empty($field)) {
-            if (!is_array($field)) {
-                $field = empty($order) ? [$field] : [(string) $field => (string) $order];
+            if (is_string($field)) {
+                $field = empty($order) ? $field : [$field => $order];
             }
             $this->options['order'] = $field;
         }
@@ -1892,16 +1902,19 @@ class Model
     /**
      * 设置字段验证
      * @access public
-     * @param mixed $field 字段名或者验证规则 true表示自动读取
-     * @param array|null $rule 验证规则
+     * @param array|bool $rule 验证规则 true表示自动读取验证器类
+     * @param array $msg 提示信息
      * @return Model
      */
-    public function validate($field = true, $rule = null)
+    public function validate($rule = true, $msg = null)
     {
-        if (is_array($field) || is_null($rule)) {
-            $this->options['validate'] = true === $field ? $this->name : $field;
-        } else {
-            $this->options['validate'][$field] = $rule;
+        if (true === $rule) {
+            $this->options['validate'] = $this->name;
+        } elseif (is_array($rule)) {
+            $this->options['validate'] = [
+                'rule' => $rule,
+                'msg'  => is_array($msg) ? $msg : [],
+            ];
         }
         return $this;
     }

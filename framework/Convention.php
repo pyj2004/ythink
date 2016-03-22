@@ -52,6 +52,8 @@ return [
     'default_controller'     => 'Index',
     // 默认操作名
     'default_action'         => 'index',
+    // 默认验证器
+    'default_validate'       => '',
     // 默认的空控制器名
     'empty_controller'       => 'Error',
     // 操作方法后缀
@@ -172,13 +174,13 @@ return [
         // 服务器地址
         'hostname'    => 'localhost',
         // 数据库名
-        'database' => 'test',
+        'database'    => '',
         // 数据库用户名
-        'username' => 'root',
+        'username'    => 'root',
         // 数据库密码
-        'password' => '123456',
+        'password'    => '',
         // 数据库连接端口
-        'hostport' => '3306',
+        'hostport'    => '',
         // 数据库连接参数
         'params'      => [],
         // 数据库编码默认采用utf8
@@ -197,7 +199,4 @@ return [
         'slave_no'    => '',
     ],
 
-		'taglib_begin' => '<',
-		'taglib_end' => '>',
-		'base_url'=>''
 ];
