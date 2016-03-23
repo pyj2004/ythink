@@ -32,8 +32,13 @@ return [
 				// 指定从服务器序号
 				'slave_no' => '' 
 		],
-		
-		'taglib_begin' => '<',
-		'taglib_end' => '>',
+
+		'template' => [
+				'type' => 'think',
+				// 标签库标签开始标签
+				'taglib_begin' => '<',
+				// 标签库标签结束标记
+				'taglib_end' => '>'
+		],
 		'base_url'=>''
 ];
