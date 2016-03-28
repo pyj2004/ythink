@@ -215,13 +215,12 @@ class Url
             }
             // 检查变量匹配
             if (self::pattern($pattern, $vars)) {
-                foreach ($vars as $key => $val) {
-                    if (false !== strpos($url, '[:' . $key . ']')) {
-                        $url = str_replace('[:' . $key . ']', $val, $url);
+                foreach ($pattern as $key => $val) {
+                    if (isset($vars[$key])) {
+                        $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
                         unset($vars[$key]);
-                    } elseif (false !== strpos($url, ':' . $key)) {
-                        $url = str_replace(':' . $key, $val, $url);
-                        unset($vars[$key]);
+                    } else {
+                        $url = str_replace(['[:' . $key . ']', '<' . $key . '?>'], '', $url);
                     }
                 }
                 return $url;
@@ -286,6 +285,18 @@ class Url
         $var = [];
         foreach (explode('/', $rule) as $val) {
             $optional = false;
+            if (false !== strpos($val, '<') && preg_match_all('/<(\w+(\??))>/', $val, $matches)) {
+                foreach ($matches[1] as $name) {
+                    if (strpos($name, '?')) {
+                        $name     = substr($name, 0, -1);
+                        $optional = true;
+                    } else {
+                        $optional = false;
+                    }
+                    $var[$name] = $optional ? 2 : 1;
+                }
+            }
+
             if (0 === strpos($val, '[:')) {
                 // 可选参数
                 $optional = true;
@@ -294,8 +305,7 @@ class Url
             if (0 === strpos($val, ':')) {
                 // URL变量
                 $name       = substr($val, 1);
-                $type       = $optional ? 2 : 1;
-                $var[$name] = $type;
+                $var[$name] = $optional ? 2 : 1;
             }
         }
         return $var;

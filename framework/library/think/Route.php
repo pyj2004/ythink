@@ -127,7 +127,7 @@ class Route
                         $key    = substr($key, 1, -1);
                         $result = ['routes' => $val, 'option' => $option, 'pattern' => $pattern];
                     } elseif (is_array($val)) {
-                        $result = ['route' => $val[0], 'option' => $val[1], 'pattern' => $val[2]];
+                        $result = ['route' => $val[0], 'option' => $val[1], 'pattern' => isset($val[2]) ? $val[2] : []];
                     } else {
                         $result = ['route' => $val, 'option' => $option, 'pattern' => $pattern];
                     }
@@ -506,7 +506,7 @@ class Route
                     // 执行闭包
                     return ['type' => 'function', 'function' => $route, 'params' => $match];
                 }
-                return self::parseRule($rule, $route, $url);
+                return self::parseRule($rule, $route, $url, $match);
             }
         }
         return false;
@@ -598,6 +598,29 @@ class Route
         $m2  = explode('/', $rule);
         $var = [];
         foreach ($m2 as $key => $val) {
+            // val中定义了多个变量 <id><name>
+            if (false !== strpos($val, '<') && preg_match_all('/<(\w+(\??))>/', $val, $matches)) {
+                $value = [];
+                foreach ($matches[1] as $name) {
+                    if (strpos($name, '?')) {
+                        $name      = substr($name, 0, -1);
+                        $replace[] = '((' . (isset($pattern[$name]) ? $pattern[$name] : '') . ')?)';
+                    } else {
+                        $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '') . ')';
+                    }
+                    $value[] = $name;
+                }
+                $val = str_replace($matches[0], $replace, $val);
+                if (preg_match('/^' . $val . '$/', $m1[$key], $match)) {
+                    array_shift($match);
+                    $match = array_slice($match, 0, count($value));
+                    $var   = array_merge($var, array_combine($value, $match));
+                    continue;
+                } else {
+                    return false;
+                }
+            }
+
             if (0 === strpos($val, '[:')) {
                 // 可选参数
                 $val = substr($val, 1, -1);
@@ -609,7 +632,7 @@ class Route
                     // 检查变量规则
                     return false;
                 }
-                $var[$name] = $m1[$key];
+                $var[$name] = isset($m1[$key]) ? $m1[$key] : '';
             } elseif (0 !== strcasecmp($val, $m1[$key])) {
                 return false;
             }
@@ -619,15 +642,14 @@ class Route
     }
 
     // 解析规则路由
-    private static function parseRule($rule, $route, $pathinfo)
+    private static function parseRule($rule, $route, $pathinfo, $matches)
     {
         // 获取URL地址中的参数
         $paths = explode('/', $pathinfo);
         // 获取路由地址规则
         $url = is_array($route) ? $route[0] : $route;
         // 解析路由规则
-        $matches = [];
-        $rule    = explode('/', $rule);
+        $rule = explode('/', $rule);
         foreach ($rule as $item) {
             $fun = '';
             if (0 === strpos($item, '[:')) {
