@@ -202,13 +202,14 @@ class Model
             if (!empty($this->data)) {
                 // 没有传递数据，获取当前数据对象的值
                 $data = $this->data;
+                $find = true;
                 // 重置数据
                 $this->data = [];
             } else {
                 throw new Exception('invalid data');
             }
         }
-        if (!empty($this->duplicate) && 'update' == $type) {
+        if (isset($find) && !empty($this->duplicate) && 'update' == $type) {
             // 存在数据副本
             foreach ($data as $key => $val) {
                 // 去除相同数据

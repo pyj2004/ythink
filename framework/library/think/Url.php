@@ -224,8 +224,13 @@ class Url
                         $url = str_replace(['[:' . $key . ']', '<' . $key . '?>'], '', $url);
                     }
                 }
+                $match = true;
             }
-            if (!empty($param) && array_intersect($param, $array) == $param) {
+            if (empty($pattern) && empty($param)) {
+                // 没有任何变量
+                return $url;
+            } elseif (!empty($match) || !empty($param) && array_intersect($param, $array) == $param) {
+                // 存在变量定义
                 $vars = array_diff($array, $param);
                 return $url;
             }
