@@ -37,8 +37,6 @@ trait View
                 if (isset($view['_table'])) {
                     // 2011/10/17 添加实际表名定义支持 可以实现同一个表的视图
                     $tableName .= $view['_table'];
-                    $prefix    = $this->tablePrefix;
-                    $tableName = preg_replace_callback("/__([A-Z_-]+)__/sU", function ($match) use ($prefix) {return $prefix . strtolower($match[1]);}, $tableName);
                 } else {
                     $tableName .= \think\Loader::table($name)->getTableName();
                 }
@@ -75,14 +73,14 @@ trait View
             $val = $this->_checkFields($name, $val);
             foreach ($val as $key => $field) {
                 if (is_numeric($key)) {
-                    $viewFields[$field] = $k . '.' . $field;
+                    $viewFields[$k . '.' . $field] = $field;
                 } elseif ('_' != substr($key, 0, 1)) {
                     // 以_开头的为特殊定义
                     if (false !== strpos($key, '*') || false !== strpos($key, '(') || false !== strpos($key, '.')) {
                         //如果包含* 或者 使用了sql方法 则不再添加前面的表名
-                        $viewFields[$field] = $key;
+                        $viewFields[$key] = $field;
                     } else {
-                        $viewFields[$field] = $k . '.' . $key;
+                        $viewFields[$k . '.' . $key] = $field;
                     }
                 }
             }
@@ -132,63 +130,15 @@ trait View
         if (is_array($where)) {
             $_where = [];
             foreach ($where as $field => $value) {
-                if ('_complex' != $field) {
-                    $value = [$field => $value];
-                    $parent = 1;
+                if (false !== $k = array_search($field, $viewFields, true)) {
+                    // 存在视图字段
+                    $_where[$k] = $value;
                 } else {
-                    $parent = 0;
-                }
-                foreach ($value as $key => $val) {
-                    if (0 !== strpos($key, '_')) {
-                        if ($items = preg_split('/[\|\&]/', $key, -1, PREG_SPLIT_OFFSET_CAPTURE)) {
-                            // 倒序找出的字段数组，以便从后向前替换
-                            $items = array_reverse($items);
-                            foreach ($items as $item) {
-                                if (isset($viewFields[$item[0]])) { // 存在视图字段
-                                    $key = substr_replace($key, $viewFields[$item[0]], $item[1], strlen($item[0]));
-                                }
-                            }
-                        }
-                        if (isset($val[0]) && 'exp' == $val[0] && !empty($val[1])) {
-                            if (preg_match_all('/(?<![\'\.])\b(\w+)\b(?![\'])/', $val[1], $matches, PREG_OFFSET_CAPTURE)) {
-                                // 倒序找出的字段数组，以便从后向前替换
-                                $items = array_reverse($matches[0]);
-                                foreach ($items as $item) {
-                                    if (isset($viewFields[$item[0]])) {
-                                        $val[1] = substr_replace($val[1], $viewFields[$item[0]], $item[1], strlen($item[0]));
-                                    }
-                                }
-                            }
-                        }
-                    } elseif (is_string($val) && ('__query' == $key || '_string' == $key)) {
-                        if (preg_match_all('/(?<![=\'\.])\b(\w+)\b(?![&\'])/', $val, $matches, PREG_OFFSET_CAPTURE)) {
-                            // 倒序找出的字段数组，以便从后向前替换
-                            $items = array_reverse($matches[0]);
-                            foreach ($items as $item) {
-                                if (isset($viewFields[$item[0]])) {
-                                    $val = substr_replace($val, $viewFields[$item[0]], $item[1], strlen($item[0]));
-                                }
-                            }
-                        }
-                    }
-                    if ($parent) {
-                        $_where[$key] = $val;
-                    } else {
-                        $_where[$field][$key] = $val;
-                    }
+                    $_where[$field] = $value;
                 }
             }
             return $_where;
         } else {
-            if (preg_match_all('/(?<![=\'\.])\b(\w+)\b(?![&\'])/', $where, $matches, PREG_OFFSET_CAPTURE)) {
-                // 倒序找出的字段数组，以便从后向前替换
-                $items = array_reverse($matches[0]);
-                foreach ($items as $item) {
-                    if (isset($viewFields[$item[0]])) {
-                        $where = substr_replace($where, $viewFields[$item[0]], $item[1], strlen($item[0]));
-                    }
-                }
-            }
             return $where;
         }
     }
@@ -220,9 +170,9 @@ trait View
                 $sort = ' ' . $field;
                 $field = $key;
             }
-            if (isset($viewFields[$field])) {
+            if (false !== $k = array_search($field, $viewFields, true)) {
                 // 存在视图字段
-                $field = $viewFields[$field] . $sort;
+                $field = $k . $sort;
             }
             $_order[] = $field;
         }
@@ -245,9 +195,9 @@ trait View
             $group = explode(',', $group);
         }
         foreach ($group as &$field) {
-            if (isset($viewFields[$field])) {
+            if (false !== $k = array_search($field, $viewFields, true)) {
                 // 存在视图字段
-                $field = $viewFields[$field];
+                $field = $k;
             }
         }
 
@@ -288,14 +238,14 @@ trait View
                     // 倒序找出的字段数组，以便从后向前替换
                     $items = array_reverse($matches[0]);
                     foreach ($items as $item) {
-                        if (isset($viewFields[$item[0]])) {
-                            $field = substr_replace($field, $viewFields[$item[0]], $item[1], strlen($item[0]));
+                        if (false !== $k = array_search($item[0], $viewFields, true)) {
+                            $field = substr_replace($field, $k, $item[1], strlen($item[0]));
                         }
                     }
                 }
-            } elseif (isset($viewFields[$field])) {
+            } elseif (false !== $k = array_search($field, $viewFields, true)) {
                 // 存在视图字段
-                $field = $viewFields[$field];
+                $field = $k;
             }
             $_fields[] = $field . $alias;
         }

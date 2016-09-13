@@ -17,7 +17,7 @@ function dispatcher(){
  * 配置
  * @return mixed
  */
-function config(){
+function cfg(){
 	return \Yaf\Registry::get('config');
 }
 ?>

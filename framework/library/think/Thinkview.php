@@ -22,7 +22,8 @@ class Thinkview implements \Yaf\View_Interface {
 	 * @return void
 	 */
 	public function __construct() {
-		$this->_smarty = \think\View::instance ( \think\Config::get () )->instance ();
+		$config=\think\Config::get ();
+		$this->_smarty = \think\View::instance ( $config['template'] )->instance ();
 	}
 	
 	/**
@@ -70,7 +71,7 @@ class Thinkview implements \Yaf\View_Interface {
 		if (! empty ( $tpl_vars )) {
 			$this->assign ( $tpl_vars );
 		}
-		if (strtolower ( MODULE_NAME ) == strtolower ( C ( 'DEFAULT_MODULE' ) )) {
+		if (strtolower ( MODULE_NAME ) == strtolower ( config ('DEFAULT_MODULE' ) )) {
 			$themepath = APP_PATH . DS . 'views' . DS;
 		} else {
 			$themepath = APP_PATH . DS . MODULE_NAME . DS . 'views' . DS;
@@ -95,7 +96,8 @@ class Thinkview implements \Yaf\View_Interface {
 		} else {
 			$name = CONTROLLER_NAME . DS . MODULE_NAME;
 		}
-		$ext = config ()['application']['view']['ext'];
+		$config=\Yaf\Registry::get('config');
+		$ext = $config['application']['view']['ext'];
 		$name = $name . '.' . $ext;
 		echo $this->render ( $name, $tpl_vars );
 		exit ();

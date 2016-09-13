@@ -8,13 +8,16 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+
 namespace think;
+
+use think\App;
+use think\exception\ClassNotFoundException;
 
 class Session
 {
-
     protected static $prefix = '';
-    protected static $active = false;
+    protected static $init   = null;
 
     /**
      * 设置或者获取session作用域（前缀）
@@ -42,7 +45,7 @@ class Session
             $config = Config::get('session');
         }
         // 记录初始化信息
-        APP_DEBUG && Log::record('[ SESSION ] INIT ' . var_export($config, true), 'info');
+        App::$debug && Log::record('[ SESSION ] INIT ' . var_export($config, true), 'info');
         $isDoStart = false;
         if (isset($config['use_trans_sid'])) {
             ini_set('session.use_trans_sid', $config['use_trans_sid'] ? 1 : 0);
@@ -87,29 +90,46 @@ class Session
         }
         if (!empty($config['type'])) {
             // 读取session驱动
-            $class = (!empty($config['namespace']) ? $config['namespace'] : '\\think\\session\\driver\\') . ucwords($config['type']);
+            $class = false !== strpos($config['type'], '\\') ? $config['type'] : '\\think\\session\\driver\\' . ucwords($config['type']);
 
             // 检查驱动类
             if (!class_exists($class) || !session_set_save_handler(new $class($config))) {
-                throw new \think\Exception('error session handler', 11700);
+                throw new ClassNotFoundException('error session handler:' . $class, $class);
             }
         }
         if ($isDoStart) {
             session_start();
-            self::$active = true;
+            self::$init = true;
+        } else {
+            self::$init = false;
+        }
+    }
+
+    /**
+     * session自动启动或者初始化
+     * @return void
+     */
+    public static function boot()
+    {
+        if (is_null(self::$init)) {
+            self::init();
+        } elseif (false === self::$init) {
+            session_start();
+            self::$init = true;
         }
     }
 
     /**
      * session设置
-     * @param string $name session名称
-     * @param mixed $value session值
-     * @param string|null $prefix 作用域（前缀）
+     * @param string        $name session名称
+     * @param mixed         $value session值
+     * @param string|null   $prefix 作用域（前缀）
      * @return void
      */
     public static function set($name, $value = '', $prefix = null)
     {
-        !self::$active && self::init();
+        empty(self::$init) && self::boot();
+
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if (strpos($name, '.')) {
             // 二维数组赋值
@@ -128,13 +148,13 @@ class Session
 
     /**
      * session获取
-     * @param string $name session名称
-     * @param string|null $prefix 作用域（前缀）
+     * @param string        $name session名称
+     * @param string|null   $prefix 作用域（前缀）
      * @return mixed
      */
     public static function get($name = '', $prefix = null)
     {
-        !self::$active && self::init();
+        empty(self::$init) && self::boot();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if ('' == $name) {
             // 获取全部的session
@@ -160,13 +180,13 @@ class Session
 
     /**
      * 删除session数据
-     * @param string $name session名称
-     * @param string|null $prefix 作用域（前缀）
+     * @param string        $name session名称
+     * @param string|null   $prefix 作用域（前缀）
      * @return void
      */
     public static function delete($name, $prefix = null)
     {
-        !self::$active && self::init();
+        empty(self::$init) && self::boot();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if (strpos($name, '.')) {
             list($name1, $name2) = explode('.', $name);
@@ -186,12 +206,12 @@ class Session
 
     /**
      * 清空session数据
-     * @param string|null $prefix 作用域（前缀）
+     * @param string|null   $prefix 作用域（前缀）
      * @return void
      */
     public static function clear($prefix = null)
     {
-        !self::$active && self::init();
+        empty(self::$init) && self::boot();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if ($prefix) {
             unset($_SESSION[$prefix]);
@@ -202,14 +222,13 @@ class Session
 
     /**
      * 判断session数据
-     * @param string $name session名称
-     * @param string|null $prefix
+     * @param string        $name session名称
+     * @param string|null   $prefix
      * @return bool
-     * @internal param mixed $value session值
      */
     public static function has($name, $prefix = null)
     {
-        !self::$active && self::init();
+        empty(self::$init) && self::boot();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if (strpos($name, '.')) {
             // 支持数组
@@ -221,23 +240,13 @@ class Session
     }
 
     /**
-     * 暂停session
-     * @return void
-     */
-    public static function pause()
-    {
-        // 暂停session
-        session_write_close();
-    }
-
-    /**
      * 启动session
      * @return void
      */
     public static function start()
     {
         session_start();
-        self::$active = true;
+        self::$init = true;
     }
 
     /**
@@ -246,17 +255,32 @@ class Session
      */
     public static function destroy()
     {
-        $_SESSION = [];
+        if (!empty($_SESSION)) {
+            $_SESSION = [];
+        }
         session_unset();
         session_destroy();
+        self::$init = null;
     }
 
     /**
      * 重新生成session_id
+     * @param bool $delete 是否删除关联会话文件
      * @return void
      */
-    private static function regenerate()
+    private static function regenerate($delete = false)
     {
-        session_regenerate_id();
+        session_regenerate_id($delete);
+    }
+
+    /**
+     * 暂停session
+     * @return void
+     */
+    public static function pause()
+    {
+        // 暂停session
+        session_write_close();
+        self::$init = false;
     }
 }
